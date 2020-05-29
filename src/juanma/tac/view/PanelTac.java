@@ -5,8 +5,8 @@ import juanma.tac.domain.grafo.Graph;
 import juanma.tac.utils.FileIOHelper;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.text.BadLocationException;
+import java.awt.event.*;
 
 public class PanelTac {
     private JPanel internalJPane;
@@ -75,11 +75,13 @@ public class PanelTac {
             @Override
             public void actionPerformed(ActionEvent e) {
                 graphComp = graphLoaded.getComplementary();
+                writeText("Grafo complementario");
                 printGraph(graphComp);
                 int k = Integer.parseInt(tfClique.getText());
-                writeText("tiene clique con "+Algoritmos.hasKClique(graphComp,k));
+                writeText("Se puede obtener mediante de "+k+" nodos? "+Algoritmos.hasKClique(graphComp,k));
             }
         });
+
     }
 
     private void enableAll() {
@@ -108,6 +110,17 @@ public class PanelTac {
 
     private void writeText(String string) {
         taSolucion.append("\n" + string);
+        if(taSolucion.getLineCount()>=26){
+            int start = 0;
+            int end = 0;
+            try {
+                end = taSolucion.getLineEndOffset(0);
+                taSolucion.replaceRange(null, start, end);
+            } catch (BadLocationException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 
     private void parseResult(boolean[] result) {
