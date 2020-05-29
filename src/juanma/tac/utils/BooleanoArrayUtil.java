@@ -52,7 +52,6 @@ public class BooleanoArrayUtil {
     }
 
     public BooleanoArrayUtil add() {
-        boolean acc = false;
         int pos = n - 1;
         while (pos >= 0 && array[pos]) {
             array[pos] = false;
@@ -78,6 +77,15 @@ public class BooleanoArrayUtil {
             if(n)ret++;
         }
         return ret;
+    }
+
+    public int[] getNodesToProbe(){
+        int[] ret = new int[array.length];
+        int pos =0;
+        for (int i = 0; i < array.length; i++) {
+            if (array[i])ret[pos++]=i;
+        }
+    return ret;
     }
 
 }

@@ -7,11 +7,13 @@ import static com.sun.deploy.panel.TreeBuilder.createTree;
 
 // simple class to construct undirected graphs
 public class Graph {
+    public static final char POSITIVE = 1;
+    public static final char NEGATIVE = 0;
     private int vertices;   // No. of vertices
     private LinkedList<Integer>[] adj; //Adjacency List
     private char[][] adjMatrix;
     private Random ran;
-    private int treeNodeNumber=0;
+    private int treeNodeNumber = 0;
 
     // Constructor simple clean graph
     public Graph(int vertices) {
@@ -31,29 +33,30 @@ public class Graph {
             adj[i] = new LinkedList();
         for (int i = 0; i < vertices; i++) {
             for (int j = i + 1; j < vertices; j++) {
-                addEdge(i, j);
+                if (adjMatrix[i][j] == POSITIVE)
+                    addEdge(i, j);
             }
         }
     }
 
     public Graph(int numDepth, int expansion) {
-        int numNodos =1;
-        for (int i = 1; i <numDepth ; i++) {
-            numNodos+= Math.pow(expansion, i);
+        int numNodos = 1;
+        for (int i = 1; i < numDepth; i++) {
+            numNodos += Math.pow(expansion, i);
         }
         adj = new LinkedList[numNodos];
-        adj[0]= new LinkedList<>();//root node
+        adj[0] = new LinkedList<>();//root node
         this.vertices = adj.length;
         this.adjMatrix = new char[vertices][vertices];
-        createTree(numDepth-1, expansion);
+        createTree(numDepth - 1, expansion, 0);
     }
 
-    private void createTree( int depth, int expansion) {
+    private void createTree(int depth, int expansion, int nodo_padre) {
         if (depth <= 0) return;
         for (int i = 0; i < expansion; i++) {
-           adj[++treeNodeNumber] = new LinkedList<>();
-            addEdge(treeNodeNumber-1,treeNodeNumber);
-            createTree(depth-1,expansion);
+            adj[++treeNodeNumber] = new LinkedList<>();
+            addEdge(nodo_padre, treeNodeNumber);
+            createTree(depth - 1, expansion, treeNodeNumber);
         }
     }
 
@@ -83,9 +86,9 @@ public class Graph {
                     addEdge(i, j);
             }
             //verify all is conected to other nodes, if not generate at least 1 random
-            if (adj[i].isEmpty()){
+            if (adj[i].isEmpty()) {
                 int j = 0;
-                while ((j=ran.nextInt(vertices))== i);
+                while ((j = ran.nextInt(vertices)) == i) ;
                 addEdge(i, j);
             }
         }
@@ -96,5 +99,15 @@ public class Graph {
         return adjMatrix;
     }
 
+    public Graph getComplementary() {
+        Graph g = new Graph(vertices);
+        for (int i = 0; i < vertices; i++) {
+            for (int j = 0; j < vertices; j++) {
+                if (i != j)
+                    if (adjMatrix[i][j] == NEGATIVE) g.addEdge(i, j);
+            }
+        }
+        return g;
+    }
 
 }

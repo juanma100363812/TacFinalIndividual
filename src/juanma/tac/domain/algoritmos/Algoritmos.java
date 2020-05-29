@@ -16,13 +16,13 @@ public class Algoritmos {
         BooleanoArrayUtil visited = new BooleanoArrayUtil(g.getVertices());//1
         while (!visited.isFinished()) { // 2^n -> 2^n * 4n^2+6n+2
             if (verifyVortex(g, visited)) {//2 * interno -> 4n^2+6n+2
-                if (camino ==null) camino = new BooleanoArrayUtil(g.getVertices(),true);
-                if (visited.total()<camino.total()) //1
+                if (camino == null) camino = new BooleanoArrayUtil(g.getVertices(), true);
+                if (visited.total() < camino.total()) //1
                     camino.setArray(visited.cloneArray()); //1 guardamos camino posible
             }
             visited.add();//1
         }
-        if(camino==null)camino = new BooleanoArrayUtil(0);
+        if (camino == null) camino = new BooleanoArrayUtil(0);
         return camino;//1
     }
 
@@ -36,7 +36,8 @@ public class Algoritmos {
                 nodos_visited[i] = true; //1
                 for (int j = 0; j < visited.getN(); j++) { //n->2n
                     if (i != j) //1
-                        nodos_visited[j] = g.getAdjMatrix()[i][j] == 1;//1
+                        if (g.getAdjMatrix()[i][j] == Graph.POSITIVE)
+                            nodos_visited[j] = true;//1
                 }
             }
         }
@@ -86,4 +87,29 @@ public class Algoritmos {
 
         return visited; //1
     }
+
+
+    public static boolean hasKClique(Graph graph, int k) {
+        boolean ret = false;
+        BooleanoArrayUtil booleanoArrayUtil = new BooleanoArrayUtil(graph.getVertices());
+        while (!booleanoArrayUtil.isFinished()) {
+            if (booleanoArrayUtil.total() == k ) {
+
+            int[] visitados = booleanoArrayUtil.getNodesToProbe();
+            ret = true;
+            for (int node_ini : visitados) {
+                for (int node_des : visitados) {
+                    if (node_ini != node_des) {
+                        if (graph.getAdjMatrix()[node_ini][node_des] != Graph.POSITIVE) ret=false;
+                    }
+                }
+            }
+            if(ret)return ret;
+            }
+            booleanoArrayUtil.add();
+
+        }
+        return ret;
+    }
 }
+

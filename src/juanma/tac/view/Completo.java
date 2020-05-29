@@ -1,43 +1,93 @@
-public class Completo extends javax.swing.JDialog {
-private javax.swing.JPanel contentPane;
-private javax.swing.JButton buttonOK;
-private javax.swing.JButton buttonCancel;
+package juanma.tac.view;
 
-public Completo(){
-setContentPane(contentPane);
-setModal(true);
-getRootPane().setDefaultButton(buttonOK);
+import juanma.tac.domain.grafo.Graph;
 
-buttonOK.addActionListener(new java.awt.event.ActionListener(){public void actionPerformed(java.awt.event.ActionEvent e){onOK();}});
+import javax.swing.*;
+import java.awt.event.*;
 
-buttonCancel.addActionListener(new java.awt.event.ActionListener(){public void actionPerformed(java.awt.event.ActionEvent e){onCancel();}});
+public class Completo extends JDialog {
+    private JPanel contentPane;
+    private JButton buttonOK;
+    private JButton buttonCancel;
+    private JRadioButton rbGrafo;
+    private JRadioButton rbTree;
+    private JTextField jtParam1;
+    private JTextField jtParam2;
+    private JLabel jlParam1;
+    private JLabel jlParam2;
+    private ButtonGroup group;
+    private final CreaGrafoCallback callback;
 
- // call onCancel() when cross is clicked
-setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-addWindowListener(new java.awt.event.WindowAdapter() {
-  public void windowClosing(java.awt.event.WindowEvent e) {
-   onCancel();
-  }
-});
+    public Completo(CreaGrafoCallback callback) {
 
- // call onCancel() on ESCAPE
-contentPane.registerKeyboardAction(  new java.awt.event.ActionListener() {    public void actionPerformed(java.awt.event.ActionEvent e) {      onCancel();
-    }  },  javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0),  javax.swing.JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);}
+        setContentPane(contentPane);
+        setModal(true);
+        getRootPane().setDefaultButton(buttonOK);
+        this.callback = callback;
+        group = new ButtonGroup();
+        group.add(rbGrafo);
+        group.add(rbTree);
+        buttonOK.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onOK();
+            }
+        });
 
-private void onOK(){
- // add your code here
-dispose();
-}
+        buttonCancel.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onCancel();
+            }
+        });
 
-private void onCancel(){
- // add your code here if necessary
-dispose();
-}
+        // call onCancel() when cross is clicked
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                onCancel();
+            }
+        });
 
-public static void main(String[] args){
-Completo dialog = new Completo();
-dialog.pack();
-dialog.setVisible(true);
-System.exit(0);
-}
+        // call onCancel() on ESCAPE
+        contentPane.registerKeyboardAction(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                onCancel();
+            }
+        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        rbGrafo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jlParam1.setText("Numero de nodos");
+                jlParam2.setText("Probabilidad arista");
+            }
+        });
+        rbTree.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jlParam1.setText("Profundidad");
+                jlParam2.setText("Expansion");
+            }
+        });
+    }
+
+    private void onOK() {
+        if(group.isSelected(rbGrafo.getModel())){
+            Graph graph = new Graph(Integer.parseInt(jtParam1.getText()));
+            graph.addEdgesPercertage(Float.parseFloat(jtParam2.getText()));
+            callback.succes(graph);
+        }else {
+            callback.succes(new Graph(Integer.parseInt(jtParam1.getText()), Integer.parseInt(jtParam1.getText())));
+        }
+        dispose();
+    }
+
+    private void onCancel() {
+
+        dispose();
+    }
+
+
+
+    public interface CreaGrafoCallback{
+        void succes(Graph graph);
+    }
 }

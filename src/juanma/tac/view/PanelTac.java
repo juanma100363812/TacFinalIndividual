@@ -2,14 +2,11 @@ package juanma.tac.view;
 
 import juanma.tac.domain.algoritmos.Algoritmos;
 import juanma.tac.domain.grafo.Graph;
-import juanma.tac.utils.BooleanoArrayUtil;
 import juanma.tac.utils.FileIOHelper;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
 
 public class PanelTac {
     private JPanel internalJPane;
@@ -20,9 +17,11 @@ public class PanelTac {
     private JButton btSave;
     private JTextArea taSolucion;
     private JButton crearGrafo;
-    private JFileChooser jFileChooser;
-    private File file;
-    Graph graphLoaded;
+    private JButton btKclique;
+    private JTextField tfClique;
+    private final JFileChooser jFileChooser;
+    private Graph graphLoaded;
+    private Graph graphComp;
 
     public PanelTac() {
         jFileChooser = new JFileChooser("./src/pruebas");
@@ -52,11 +51,16 @@ public class PanelTac {
             });
             jFileChooser.showDialog(null, "Guardar");
         });
-        crearGrafo.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        crearGrafo.addActionListener(e -> {
+            Completo dialog = new Completo(graph -> {
+                PanelTac.this.graphLoaded = graph;
+                jlbNombreFichero.setText("Grafo generado - No guardado");
+                enableAll();
+                printGraph(graphLoaded);
 
-            }
+            });
+            dialog.pack();
+            dialog.setVisible(true);
         });
         btResolEx.addActionListener(e -> {
             boolean[] result = Algoritmos.vertexCover(graphLoaded).getArray();
@@ -66,6 +70,16 @@ public class PanelTac {
             boolean[] result = Algoritmos.printVertexCover(graphLoaded);
             parseResult(result);
         });
+
+        btKclique.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                graphComp = graphLoaded.getComplementary();
+                printGraph(graphComp);
+                int k = Integer.parseInt(tfClique.getText());
+                writeText("tiene clique con "+Algoritmos.hasKClique(graphComp,k));
+            }
+        });
     }
 
     private void enableAll() {
@@ -73,10 +87,14 @@ public class PanelTac {
         brResolAprox.setEnabled(true);
         btSave.setEnabled(true);
         crearGrafo.setEnabled(true);
+        btKclique.setEnabled(true);
     }
 
     private void loadFile(String path) {
-        FileIOHelper.loadGraphFromFile(path, g -> graphLoaded = g);
+        FileIOHelper.loadGraphFromFile(path, g -> {
+            graphLoaded = g;
+            printGraph(graphLoaded);
+        });
     }
 
     private void saveFile(String path, Graph g) {
@@ -92,9 +110,9 @@ public class PanelTac {
         taSolucion.append("\n" + string);
     }
 
-    private void parseResult(boolean result[]) {
+    private void parseResult(boolean[] result) {
         StringBuilder nodos = new StringBuilder("resultado : {");
-        if (result.length>0) {
+        if (result.length > 0) {
             for (int i = 0; i < result.length; i++) {
                 if (result[i]) {
                     nodos.append(i);
@@ -105,4 +123,17 @@ public class PanelTac {
         nodos.append("}");
         writeText(nodos.toString());
     }
+
+    private void printGraph(Graph graph) {
+        writeText("nodos: " + graph.getVertices());
+        for (int i = 0; i < graph.getVertices(); i++) {
+            StringBuilder builder = new StringBuilder("");
+            for (int j = 0; j < graph.getVertices(); j++) {
+                builder.append(graph.getAdjMatrix()[i][j] == Graph.POSITIVE ? "1" : "0").append(" ");
+            }
+            writeText(builder.toString());
+        }
+
+    }
+
 }

@@ -19,6 +19,12 @@ public class FileIOHelper {
                 while ((linea = fr.readLine()) != null) {
                     matrix[i++] = linea.toCharArray();
                 }
+                for (int j = 0; j < matrix.length ; j++) {
+                    for (int k = 0; k < matrix[j].length; k++) {
+                        if (matrix[j][k]=='1')matrix[j][k]=Graph.POSITIVE;
+                        else if (matrix[j][k]=='0')matrix[j][k]=Graph.NEGATIVE;
+                    }
+                }
             } catch (IOException e) {
                 System.out.println("error ->"+file.getAbsolutePath());
             } finally {
